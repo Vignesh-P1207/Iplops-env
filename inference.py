@@ -18,9 +18,9 @@ SUCCESS_SCORE_THRESHOLD = 0.7
 
 
 def get_llm_client() -> OpenAI:
-    """Lazily create the OpenAI client using injected proxy credentials."""
-    api_base = os.environ.get("API_BASE_URL") or os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
-    api_key = os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", "placeholder")
+    """Create the OpenAI client using injected proxy credentials."""
+    api_base = os.environ["API_BASE_URL"]
+    api_key = os.environ["API_KEY"]
     return OpenAI(base_url=api_base, api_key=api_key)
 
 
@@ -77,11 +77,12 @@ class IPLOpsAgent:
             "Return only valid JSON, no extra text."
         )
         user = f"Stadium data:\n{json.dumps(observation['data'], indent=2)}"
+        # LLM call is NOT wrapped — must reach the proxy
         raw = llm_call(system, user)
+        # Only JSON parsing is wrapped
         try:
             return parse_json_response(raw)
         except Exception:
-            # Fallback with heuristics if LLM response is unparseable
             stadium = observation["data"]["stadium"]
             crowd = int(stadium["capacity"] * stadium["expected_crowd_percentage"])
             ratio = {"league": 2.5, "playoff": 3.5, "final": 5.0}.get(stadium["match_type"], 3.0)
