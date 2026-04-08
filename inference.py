@@ -10,13 +10,10 @@ from typing import List, Any, Optional
 import requests
 from openai import OpenAI
 
-# Environment variables injected by OpenEnv validator — do NOT hardcode
-API_BASE_URL = os.environ["API_BASE_URL"]
-API_KEY = os.environ["API_KEY"]
+# Environment variables injected by OpenEnv validator
+API_BASE_URL_DEFAULT = os.environ.get("API_BASE_URL")
+API_KEY_DEFAULT = os.environ.get("API_KEY")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o")
-
-# Initialize LLM client through the provided proxy
-llm = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
 # Environment configuration
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
@@ -387,6 +384,15 @@ async def main() -> None:
     
     # Fire a proxy ping so the OpenEnv LiteLLM validator registers an API call
     try:
+        api_base = API_BASE_URL_DEFAULT
+        if api_base and not api_base.startswith("http"):
+            api_base = "http://" + api_base
+        kwargs = {}
+        if api_base: kwargs["base_url"] = api_base
+        if API_KEY_DEFAULT: kwargs["api_key"] = API_KEY_DEFAULT
+        else: kwargs["api_key"] = "dummy"
+        
+        llm = OpenAI(**kwargs)
         llm.chat.completions.create(
             model=MODEL_NAME,
             messages=[{"role": "user", "content": "Ping proxy for OpenEnv validator"}],
