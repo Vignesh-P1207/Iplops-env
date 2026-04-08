@@ -10,22 +10,24 @@ from typing import List, Any, Optional
 import requests
 from openai import OpenAI
 
-# --- Required: use injected proxy credentials ---
-API_BASE_URL = os.environ["API_BASE_URL"]
-API_KEY = os.environ["API_KEY"]
+# Read env vars — client is created lazily inside llm_call to avoid crash at import time
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o")
-
-# Initialize LLM client through the OpenEnv LiteLLM proxy
-llm = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
 BENCHMARK = "iplops-env"
 SUCCESS_SCORE_THRESHOLD = 0.7
 
 
+def get_llm_client() -> OpenAI:
+    """Lazily create the OpenAI client using injected proxy credentials."""
+    api_base = os.environ.get("API_BASE_URL") or os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
+    api_key = os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", "placeholder")
+    return OpenAI(base_url=api_base, api_key=api_key)
+
+
 def llm_call(system: str, user: str) -> str:
     """Make a call through the OpenEnv LLM proxy and return the text response."""
-    response = llm.chat.completions.create(
+    client = get_llm_client()
+    response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=[
             {"role": "system", "content": system},
