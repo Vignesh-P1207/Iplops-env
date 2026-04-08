@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse
 from app.env import IPLOpsEnvironment
 from app.models import ResetRequest, StepRequest, StepResponse, ResetResponse
 import uvicorn
+from typing import Optional
 
 app = FastAPI(
     title="IPLOps-Env",
@@ -72,10 +73,11 @@ async def health():
 
 
 @app.post("/reset", response_model=ResetResponse)
-async def reset(request: ResetRequest):
+async def reset(request: Optional[ResetRequest] = None):
     """Reset environment and initialize a new task"""
     try:
-        result = env.reset(request.task_id)
+        task_id = request.task_id if request else 1
+        result = env.reset(task_id)
         return ResetResponse(**result)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
