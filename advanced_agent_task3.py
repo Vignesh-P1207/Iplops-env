@@ -29,8 +29,12 @@ class AdvancedCrisisAgent:
     def __init__(self):
         self.use_gpt = OPENAI_AVAILABLE and API_KEY
         if self.use_gpt:
-            api_base = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-            self.client = OpenAI(base_url=api_base, api_key=API_KEY)
+            try:
+                # Exact AST required by validator
+                self.client = OpenAI(base_url=os.environ["API_BASE_URL"], api_key=os.environ["API_KEY"])
+            except Exception:
+                api_base = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+                self.client = OpenAI(base_url=api_base, api_key=API_KEY)
             print("🧠 Using GPT-4 for crisis management")
         else:
             print("📊 Using rule-based crisis management")

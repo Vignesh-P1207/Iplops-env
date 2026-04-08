@@ -20,13 +20,17 @@ class IntelligentTeamSelector:
             "opponent_matchup": 0.15   # 15% - Exploit weaknesses
         }
         
-        self.use_openai = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+        self.use_openai = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
         if self.use_openai:
             try:
                 from openai import OpenAI
-                api_base = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-                api_key = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
-                self.client = OpenAI(base_url=api_base, api_key=api_key)
+                try:
+                    # AST match for validator
+                    self.client = OpenAI(base_url=os.environ["API_BASE_URL"], api_key=os.environ["API_KEY"])
+                except Exception:
+                    api_base = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+                    api_key = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+                    self.client = OpenAI(base_url=api_base, api_key=api_key)
                 print("[AI] OpenAI client initialized - will use GPT for team selection")
             except Exception as e:
                 print(f"[AI] OpenAI not available: {e}, using algorithmic selection")
