@@ -262,7 +262,7 @@ class PlayingXIGrader:
 
         valid, error = self.validate_structure(action, squad)
         if not valid:
-            return {"score": 0.0, "error": error, "breakdown": {}}
+            return {"score": 0.01, "error": error, "breakdown": {}}
 
         balance_result = self.score_team_balance(action["playing_xi"])
         pitch_result = self.score_pitch_fit(action["playing_xi"], pitch)
@@ -274,6 +274,7 @@ class PlayingXIGrader:
             opponent_result["score"] * self.WEIGHTS["opponent_matchup"]
         )
 
+        final_score = max(0.01, min(0.98, final_score))
         return {
             "score": round(final_score, 3),
             "breakdown": {

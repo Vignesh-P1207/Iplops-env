@@ -57,7 +57,7 @@ class StaffAllocationGrader:
         for field in required_fields:
             if field not in action:
                 return {
-                    "score": 0.0,
+                    "score": 0.01,
                     "error": f"Missing required field: {field}",
                     "breakdown": {}
                 }
@@ -100,6 +100,7 @@ class StaffAllocationGrader:
             understaffing_score * self.WEIGHTS["no_understaffing"]
         )
         
+        final_score = max(0.01, min(0.98, final_score))
         return {
             "score": round(final_score, 3),
             "breakdown": {

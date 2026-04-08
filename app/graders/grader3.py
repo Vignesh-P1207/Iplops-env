@@ -264,7 +264,7 @@ class CrisisManagementGrader:
         valid, error = self.validate_structure(action)
         if not valid:
             return {
-                "score": 0.0,
+                "score": 0.01,
                 "error": error,
                 "breakdown": {}
             }
@@ -281,6 +281,7 @@ class CrisisManagementGrader:
             feasibility_result["score"] * self.WEIGHTS["operational_feasibility"]
         )
         
+        final_score = max(0.01, min(0.98, final_score))
         return {
             "score": round(final_score, 3),
             "breakdown": {
