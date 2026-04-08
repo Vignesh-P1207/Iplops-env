@@ -4,7 +4,6 @@ Follows official OpenEnv hackathon requirements with structured logging
 """
 import os
 import sys
-import json
 import asyncio
 from typing import List, Dict, Any, Optional
 import requests
@@ -30,36 +29,20 @@ SUCCESS_SCORE_THRESHOLD = 0.7
 
 def log_start(task: str, env: str, model: str) -> None:
     """Log task start in OpenEnv format"""
-    print(json.dumps({
-        "type": "START",
-        "task": task,
-        "env": env,
-        "model": model
-    }), flush=True)
+    print(f"[START] task={task} env={env} model={model}", flush=True)
 
 
 def log_step(step: int, action: Any, reward: float, done: bool, error: Optional[str] = None) -> None:
     """Log each step in OpenEnv format"""
-    print(json.dumps({
-        "type": "STEP",
-        "step": step,
-        "action": action,
-        "reward": reward,
-        "done": done,
-        "error": error
-    }), flush=True)
+    line = f"[STEP] step={step} reward={reward} done={done}"
+    if error:
+        line += f" error={error}"
+    print(line, flush=True)
 
 
 def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
     """Log task end in OpenEnv format"""
-    print(json.dumps({
-        "type": "END",
-        "success": success,
-        "steps": steps,
-        "score": score,
-        "total_reward": sum(rewards),
-        "rewards": rewards
-    }), flush=True)
+    print(f"[END] score={score} steps={steps} success={success}", flush=True)
 
 
 class IPLOpsAgent:
