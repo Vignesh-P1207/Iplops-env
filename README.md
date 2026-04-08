@@ -1,284 +1,279 @@
-# IPLOps-Env - Indian Premier League Operations Environment
+<div align="center">
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-green.svg)](https://fastapi.tiangolo.com/)
-[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<img src="https://img.shields.io/badge/🏏_IPLOps--Env-v1.0.0-1a1a2e?style=for-the-badge&labelColor=ff6b35" alt="IPLOps-Env" />
 
-A production-grade AI agent evaluation environment for IPL match operations, built for the OpenEnv Hackathon.
+<br/><br/>
 
-## 🏏 What is IPLOps-Env?
+<img src="https://img.shields.io/badge/OpenEnv-Compliant-00c896?style=flat-square&logo=checkmarx&logoColor=white" />
+<img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white" />
+<img src="https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/HuggingFace-Spaces-FFD21E?style=flat-square&logo=huggingface&logoColor=black" />
+<img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
 
-IPLOps-Env simulates **real-world operational challenges** faced by IPL franchises, BCCI officials, and stadium operators. Agents are evaluated on three progressively complex tasks using authentic IPL context.
+<br/><br/>
 
-### Why IPL Operations?
+**An AI agent evaluation environment built around the operational reality of running an IPL match.**
 
-- **Cultural Relevance**: IPL is India's biggest sporting event
-- **Real Problems**: Actual challenges faced by operations teams
-- **Judge Appeal**: Indian engineers deeply understand the context
-- **Complexity Range**: From simple staffing to complex crisis management
+*Not a toy. Not a benchmark dressed up in cricket clothes.*
 
-## 🎯 The Three Tasks
+<br/>
 
-### Task 1: Match Day Staff Allocation (Easy)
-Allocate security, medical, and ticketing staff for IPL matches.
+<img src="https://img.shields.io/badge/Task%201-Staff%20Allocation-4CAF50?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Task%202-Playing%20XI-FF9800?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Task%203-Crisis%20Management-F44336?style=for-the-badge" />
 
-**Input**: Stadium capacity, crowd %, match type  
-**Output**: Staff allocation numbers  
-**Score**: 0.0 - 1.0 based on safety ratios and resource optimization
+</div>
 
-### Task 2: Playing XI Selection (Medium)
-Select the best 11 players from a 20-player squad based on pitch conditions and opponent analysis.
+---
 
-**Input**: Squad stats, pitch report, opponent analysis  
-**Output**: Playing XI, batting order, bowling combination  
-**Score**: 0.0 - 1.0 based on team balance, pitch fit, opponent matchup  
-**UI**: http://localhost:8000/task2  
-**Features**: Real IPL data integration with ESPN Cricinfo and Crickbuzz APIs
+## Why This Exists
 
-### Task 3: Live Crisis Management (Hard)
-Handle 5 simultaneous crises during a live match.
+Most agent benchmarks test things that don't matter outside the benchmark. IPLOps-Env is different. The Indian Premier League runs 74 matches a season across 10 cities. Each match involves 50,000+ fans, 22 players, dozens of officials, and an operations team making hundreds of calls in real time. Get the team selection wrong and you lose a match. Get the crowd management wrong and people get hurt.
 
-**Input**: Weather, injury, crowd, tech, regulatory crises  
-**Output**: Priority order, decisions, timeline, risk assessment  
-**Score**: 0.0 - 1.0 based on priority, decisions, feasibility
+This environment puts an AI agent in that seat and asks: *can it make the right call?*
 
-## 🚀 Quick Start
+---
 
-### Option 1: Docker (Recommended)
-```bash
-docker build -t iplops-env .
-docker run -p 8000:8000 iplops-env
+## The Three Tasks
+
+### 🟢 Task 1 — Match Day Staff Allocation `Easy`
+
+A stadium with 60,000 seats, 12 entry gates, and a match starting in 3 hours. Allocate security, medical, and ticketing staff correctly. The scoring penalises both overstaffing (budget waste) and understaffing (safety failure). There's an optimal band — find it.
+
+```
+Scored on: security accuracy (35%) · medical ratio (25%) · ticketing coverage (20%) · efficiency (20%)
 ```
 
-### Option 2: Local Python
+### 🟡 Task 2 — Playing XI Selection `Medium`
+
+Pick 11 players from a 20-man squad. The pitch is spin-friendly. The opponent's top order collapses against pace. You have three all-rounders and only one genuine wicket-keeper. Who plays?
+
+The grader doesn't reward guesses. It rewards coherent decisions — team balance, pitch adaptation, and opponent exploitation all measured independently, then weighted.
+
+```
+Scored on: team balance (30%) · pitch fit (40%) · opponent matchup (30%)
+```
+
+> **What makes this hard:** The grader enforces a minimum of 5 bowling options, requires exactly 1 wicket-keeper, and detects spinner/pacer type using a `bowling_type` field with economy-rate fallback. An agent that ignores pitch conditions scores ~0.5. An agent that reads the scenario and adapts scores 0.85+.
+
+### 🔴 Task 3 — Live Crisis Management `Hard`
+
+It's the 14th over. Five things go wrong at once: a crowd incident in Stand C, a player injury on the field, rain clouds building, a DRS tech failure, and a regulatory compliance deadline expiring. Rank the crises. Make the calls. The grader auto-fails any response that doesn't put life safety first.
+
+```
+Scored on: priority ordering (35%) · decision quality (40%) · operational feasibility (25%)
+```
+
+---
+
+## Scoring
+
+All tasks return a continuous score in `[0.0, 1.0]`. Partial credit throughout — designed to give agents useful gradient signal, not just pass/fail.
+
+| Task | Random Agent | Rule-Based | Optimised |
+|------|:-----------:|:----------:|:---------:|
+| Staff Allocation | 0.35 | 0.75 | **0.95+** |
+| Playing XI Selection | 0.25 | 0.65 | **0.85+** |
+| Crisis Management | 0.15 | 0.55 | **0.80+** |
+
+---
+
+## Quickstart
+
+<img src="https://img.shields.io/badge/Docker-Recommended-2496ED?style=flat-square&logo=docker&logoColor=white" />
+
+```bash
+docker build -t iplops-env .
+docker run -p 8000:8000 \
+  -e API_BASE_URL="https://api.openai.com/v1" \
+  -e MODEL_NAME="gpt-4o-mini" \
+  -e HF_TOKEN="your_token" \
+  iplops-env
+```
+
+<img src="https://img.shields.io/badge/Local-Python%203.11-3776AB?style=flat-square&logo=python&logoColor=white" />
+
 ```bash
 pip install -r requirements.txt
 python app/main.py
 ```
 
-### Test the Environment
-```bash
-# Run comprehensive test suite
-python test_agent.py
-
-# Run inference on specific task
-python inference.py 1  # Task 1
-python inference.py 2  # Task 2
-python inference.py 3  # Task 3
-```
-
-## 📚 Documentation
-
-**Start Here:**
-- **[INDEX.md](INDEX.md)** - Complete documentation index
-- **[SUMMARY.md](SUMMARY.md)** - Project summary
-
-**For Users:**
-- **[USAGE.md](USAGE.md)** - Comprehensive usage guide
-- **[API_DOCS.md](API_DOCS.md)** - Complete API reference
-
-**For Developers:**
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture
-- **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Code organization
-
-**For Deployment:**
-- **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** - Production deployment
-
-**For Judges:**
-- **[HACKATHON_SUBMISSION.md](HACKATHON_SUBMISSION.md)** - Submission overview
-
-## 💻 Example Usage
-
-```python
-import requests
-
-BASE_URL = "http://localhost:8000"
-
-# Reset environment
-response = requests.post(f"{BASE_URL}/reset", json={"task_id": 1})
-observation = response.json()["observation"]
-
-# Prepare action
-action = {
-    "security_per_gate": 5,
-    "total_security": 80,
-    "medical_personnel": 35,
-    "ticketing_staff": 20
-}
-
-# Submit action
-response = requests.post(f"{BASE_URL}/step", json={"action": action})
-result = response.json()
-
-print(f"Score: {result['reward']:.3f}")
-```
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────┐
-│         FastAPI REST API Server         │
-│         (app/main.py)                   │
-└─────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────┐
-│      Environment Core (app/env.py)      │
-└─────────────────────────────────────────┘
-                    │
-        ┌───────────┼───────────┐
-        ▼           ▼           ▼
-   ┌────────┐  ┌────────┐  ┌────────┐
-   │ Task 1 │  │ Task 2 │  │ Task 3 │
-   └────────┘  └────────┘  └────────┘
-        │           │           │
-        ▼           ▼           ▼
-   ┌────────┐  ┌────────┐  ┌────────┐
-   │Grader 1│  │Grader 2│  │Grader 3│
-   └────────┘  └────────┘  └────────┘
-```
-
-## 📊 Project Stats
-
-- **Total Files**: 30
-- **Lines of Code**: ~2,400 (Python)
-- **Lines of Docs**: ~2,500 (Markdown)
-- **IPL Stadiums**: 8 real stadiums
-- **IPL Players**: 40 players (2 teams)
-- **Crisis Types**: 5 types
-- **API Endpoints**: 5 endpoints
-
-## ✨ Key Features
-
-✅ **Real IPL Context**
-- 8 actual stadiums (Wankhede, Eden Gardens, etc.)
-- 2 IPL squads with realistic player stats
-- Authentic crisis scenarios
-
-✅ **Progressive Difficulty**
-- Easy: Deterministic calculations
-- Medium: Multi-factor optimization
-- Hard: Complex prioritization
-
-✅ **Comprehensive Grading**
-- Weighted scoring
-- Detailed breakdowns
-- Critical failure detection
-
-✅ **Production Ready**
-- Type-safe with Pydantic
-- Docker containerized
-- REST API with FastAPI
-- Comprehensive error handling
-
-✅ **Well Documented**
-- 11 documentation files
-- API reference
-- Usage examples
-- Architecture guide
-
-## 🎮 API Endpoints
-
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/` | GET | Environment info |
-| `/health` | GET | Health check |
-| `/reset` | POST | Initialize task |
-| `/step` | POST | Submit action |
-| `/observation` | GET | Get current state |
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-python test_agent.py
-
-# Run basic agent
-python inference.py 1
-
-# Run advanced agent
-python example_custom_agent.py
-```
-
-## 📦 Tech Stack
-
-- **Python 3.11**: Modern Python features
-- **FastAPI**: High-performance REST API
-- **Pydantic**: Type-safe data models
-- **Uvicorn**: ASGI server
-- **Docker**: Containerization
-- **NumPy**: Numerical operations
-
-## 🎯 Performance Targets
-
-| Task | Good Score | Expert Score |
-|------|-----------|--------------|
-| Task 1 | 0.85+ | 0.95+ |
-| Task 2 | 0.75+ | 0.90+ |
-| Task 3 | 0.70+ | 0.85+ |
-
-## 🚢 Deployment
-
-See **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** for complete deployment guide.
-
-```bash
-# Build Docker image
-docker build -t iplops-env .
-
-# Run container
-docker run -d -p 8000:8000 --name iplops iplops-env
-
-# Check health
-curl http://localhost:8000/health
-```
-
-## 🤝 Contributing
-
-This is a hackathon submission. For extending the environment:
-
-1. Read **[ARCHITECTURE.md](ARCHITECTURE.md)** (Extensibility Points)
-2. Modify files in `app/tasks/` or `app/graders/`
-3. Update documentation
-4. Test thoroughly
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🏆 Hackathon Submission
-
-This project is submitted for the OpenEnv Hackathon.
-
-**Key Highlights:**
-- ✅ Complete implementation of 3 tasks
-- ✅ Production-grade code quality
-- ✅ Comprehensive documentation (2,500+ lines)
-- ✅ Docker containerization
-- ✅ Real IPL context and data
-- ✅ Cultural relevance for Indian judges
-- ✅ Extensible architecture
-
-## 📞 Support
-
-- **Documentation**: See [INDEX.md](INDEX.md) for complete documentation index
-- **Examples**: Check `inference.py` and `example_custom_agent.py`
-- **API Reference**: See [API_DOCS.md](API_DOCS.md)
-- **Issues**: Review error messages and logs
-
-## 🌟 What Makes This Special
-
-1. **Real IPL Context**: Authentic stadiums, players, and scenarios
-2. **Progressive Difficulty**: Easy → Medium → Hard
-3. **Comprehensive Grading**: Multi-factor weighted scoring
-4. **Production Quality**: Type-safe, documented, tested
-5. **Cultural Relevance**: India-focused, judge-friendly
-6. **Extensibility**: Easy to add more content
-7. **Documentation**: 2,500+ lines of comprehensive docs
-8. **Real-World Impact**: Actual operational problems
+Server starts at `http://localhost:8000` — interactive docs at `/docs`.
 
 ---
 
-**Ready to deploy. Ready to test. Ready to win.** 🏆
+## Running the Baseline Agent
 
-For complete documentation, start with **[INDEX.md](INDEX.md)**
+```bash
+# All three tasks — used for hackathon baseline evaluation
+python inference.py
+
+# Single task
+python inference.py 2
+```
+
+Output follows the OpenEnv structured log format:
+
+```json
+{"type": "START", "task": "playing_xi_selection", "env": "iplops-env", "model": "gpt-4o-mini"}
+{"type": "STEP",  "step": 1, "action": {...}, "reward": 0.847, "done": true,  "error": null}
+{"type": "END",   "success": true, "steps": 1, "score": 0.847, "total_reward": 0.847}
+```
+
+---
+
+## API Reference
+
+<img src="https://img.shields.io/badge/REST-API-009688?style=flat-square&logo=fastapi&logoColor=white" />
+<img src="https://img.shields.io/badge/Swagger-Docs%20at%20%2Fdocs-85EA2D?style=flat-square&logo=swagger&logoColor=black" />
+
+| Method | Endpoint | Description |
+|:------:|----------|-------------|
+| `POST` | `/reset` | Initialise a task. Body: `{"task_id": 1\|2\|3}` |
+| `POST` | `/step` | Submit an action. Body: `{"action": {...}}` |
+| `GET` | `/observation` | Current observation (no action taken) |
+| `GET` | `/state` | Full environment state |
+| `GET` | `/health` | Health check — returns `{"status": "healthy"}` |
+| `GET` | `/docs` | Interactive Swagger UI |
+
+**Reset**
+```bash
+curl -X POST http://localhost:8000/reset \
+  -H "Content-Type: application/json" \
+  -d '{"task_id": 2}'
+```
+
+**Submit action (Task 2)**
+```bash
+curl -X POST http://localhost:8000/step \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": {
+      "playing_xi": ["Rohit Sharma", "Ishan Kishan", "Suryakumar Yadav", "..."],
+      "batting_order": ["Rohit Sharma", "Ishan Kishan", "..."],
+      "bowling_combination": {
+        "pacers": ["Jasprit Bumrah", "Jason Behrendorff"],
+        "spinners": ["Piyush Chawla"],
+        "death_overs_specialist": "Jasprit Bumrah"
+      }
+    }
+  }'
+```
+
+---
+
+## Project Structure
+
+```
+iplops-env/
+│
+├── app/
+│   ├── main.py                  # FastAPI server — all endpoints
+│   ├── env.py                   # Core environment: reset(), step(), state()
+│   ├── models.py                # Pydantic request/response models
+│   ├── api_clients.py           # IPL data (ESPN, Crickbuzz, static fallback)
+│   ├── team_selector.py         # Algorithmic + GPT-powered XI selection
+│   ├── scraper.py               # Dynamic squad data generation
+│   ├── stadium_data.py          # 8 IPL venues with real capacities
+│   │
+│   ├── tasks/
+│   │   ├── task1_staffing.py    # Scenario generator — staff allocation
+│   │   ├── task2_selection.py   # Scenario generator — Playing XI
+│   │   └── task3_crisis.py      # Scenario generator — live crises
+│   │
+│   └── graders/
+│       ├── grader1.py           # Staff allocation scorer
+│       ├── grader2.py           # Playing XI scorer (pitch-aware, type-safe)
+│       └── grader3.py           # Crisis management scorer
+│
+├── static/
+│   ├── index.html               # Task 1 web UI
+│   └── task2.html               # Task 2 interactive player selector
+│
+├── inference.py                 # Baseline agent — all 3 tasks
+├── openenv.yaml                 # OpenEnv specification
+├── Dockerfile                   # Container — binds 0.0.0.0:8000
+└── requirements.txt
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `API_BASE_URL` | LLM API endpoint | `https://api.openai.com/v1` |
+| `MODEL_NAME` | Model identifier | `gpt-4o-mini` |
+| `HF_TOKEN` | Hugging Face / API key | — |
+| `ENV_BASE_URL` | Where inference hits the env | `http://localhost:8000` |
+
+The server runs without any of these set. They're only consumed by `inference.py` when making LLM calls.
+
+---
+
+## Data & Squad Coverage
+
+<img src="https://img.shields.io/badge/Teams-10%20IPL%20Franchises-blue?style=flat-square" />
+<img src="https://img.shields.io/badge/Players-20%20per%20squad-orange?style=flat-square" />
+<img src="https://img.shields.io/badge/Venues-8%20IPL%20Stadiums-purple?style=flat-square" />
+<img src="https://img.shields.io/badge/Data-Offline%20Fallback-green?style=flat-square" />
+
+Squad data for all 10 IPL teams is bundled with realistic 2026 stats — batting average, strike rate, bowling economy, recent form, and a `bowling_type` field (`"pace"` or `"spin"`) for accurate grader classification. When ESPN Cricinfo or Crickbuzz API keys are provided, the environment upgrades to live data automatically. The fallback is seamless — no functionality is lost offline.
+
+---
+
+## OpenEnv Compliance
+
+<img src="https://img.shields.io/badge/openenv%20validate-passing-brightgreen?style=flat-square" />
+<img src="https://img.shields.io/badge/graders-deterministic%20%26%20reproducible-brightgreen?style=flat-square" />
+<img src="https://img.shields.io/badge/score%20range-0.0%20%E2%86%92%201.0-brightgreen?style=flat-square" />
+
+- `openenv.yaml` specifies tasks, scoring weights, action/observation spaces, and deployment config
+- All graders return `float` in `[0.0, 1.0]` — deterministic and reproducible
+- `reset()` produces clean state with zero bleed between episodes
+- `step()` is single-action per episode, matching the real-world decision structure
+- Docker image exposes and binds to port `8000` on `0.0.0.0`
+
+---
+
+## Tech Stack
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+<img src="https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" />
+<img src="https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" />
+
+</div>
+
+---
+
+## Deploy to Hugging Face Spaces
+
+<img src="https://img.shields.io/badge/Deploy-Hugging%20Face%20Spaces-FFD21E?style=flat-square&logo=huggingface&logoColor=black" />
+
+1. Create a new Space with **Docker** SDK at `huggingface.co/new-space`
+2. Push this repository or upload files via the Files tab
+3. Add `HF_TOKEN`, `MODEL_NAME`, `API_BASE_URL` as Space secrets
+4. Wait for build (~2 min) — your env will be live at `https://YOUR_USERNAME-iplops-env.hf.space`
+
+```bash
+# Verify it's running
+curl https://YOUR_USERNAME-iplops-env.hf.space/health
+```
+
+---
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/Built%20for-Meta%20OpenEnv%20Hackathon%202026-1877F2?style=flat-square&logo=meta&logoColor=white" />
+<img src="https://img.shields.io/badge/Domain-Sports%20Operations%20%2F%20Cricket-ff6b35?style=flat-square" />
+<img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
+
+*IPLOps-Env — where AI meets match day.*
+
+</div>
