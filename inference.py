@@ -8,6 +8,7 @@ import json
 import asyncio
 from typing import List, Any, Optional
 import requests
+import httpx
 from openai import OpenAI
 
 # Read env vars — client is created lazily inside llm_call to avoid crash at import time
@@ -19,15 +20,15 @@ SUCCESS_SCORE_THRESHOLD = 0.7
 
 def get_llm_client() -> OpenAI:
     """Create the OpenAI client using injected proxy credentials."""
-    # Clear any proxy env vars that might interfere with the OpenAI client
-    for key in ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'NO_PROXY', 'no_proxy']:
-        os.environ.pop(key, None)
-    
     api_base = os.environ["API_BASE_URL"]
     api_key = os.environ["API_KEY"]
-    
-    # Minimal client initialization
-    return OpenAI(base_url=api_base, api_key=api_key)
+    # Pass an explicit httpx client with no proxies to avoid the
+    # 'unexpected keyword argument proxies' bug in older openai versions
+    return OpenAI(
+        base_url=api_base,
+        api_key=api_key,
+        http_client=httpx.Client(trust_env=False),
+    )
 
 
 def llm_call(system: str, user: str) -> str:
