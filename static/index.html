@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPLOps-Env - Staff Allocation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2a2a3e;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            cursor: pointer;
+            font-size: 1rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #ff4757;
+            border-bottom-color: #ff4757;
+        }
+
+        .tab:hover {
+            color: #fff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a3e;
+            border: 1px solid #3a3a4e;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #ff4757;
+        }
+
+        .info-text {
+            color: #7a7a8a;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .counter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .counter-group label {
+            flex: 1;
+            margin: 0;
+        }
+
+        .counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .counter button {
+            width: 35px;
+            height: 35px;
+            background: #2a2a3e;
+            border: 1px solid #3a3a4e;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .counter button:hover {
+            background: #3a3a4e;
+            border-color: #ff4757;
+        }
+
+        .counter input {
+            width: 80px;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .deployment-section {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .deployment-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .gate-card {
+            background: #2a2a3e;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .gate-card h3 {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 15px;
+        }
+
+        .medical-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .evaluate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .evaluate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .evaluate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #2a2a3e 0%, #1e1e2e 100%);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-label {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .breakdown-item {
+            background: #2a2a3e;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .breakdown-item h4 {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .breakdown-item .value {
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #2a2a3e;
+            border-top: 3px solid #ff4757;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏏 IPLOps-Env</h1>
+            <p>Indian Premier League Operations Environment - Staff Allocation</p>
+            <div style="margin-top: 15px;">
+                <a href="/task2" style="color: #ff9ff3; text-decoration: none; font-size: 0.9rem;">
+                    ➡️ Go to Task 2: Playing XI Selection
+                </a>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(1)">Task 1: Staff Allocation</button>
+            <button class="tab" onclick="alert('Coming soon!')">Task 2: Playing XI</button>
+            <button class="tab" onclick="alert('Coming soon!')">Task 3: Crisis Management</button>
+            <button class="tab" style="margin-left: auto; background: #2a2a3e;" onclick="loadScenario()">🔄 Load New Scenario</button>
+        </div>
+
+        <div id="scenarioInfo" style="background: #2a2a3e; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none;">
+            <h3 style="color: #fff; margin-bottom: 10px;">📋 Current Scenario</h3>
+            <div id="scenarioDetails" style="color: #a0a0a0;"></div>
+        </div>
+
+        <div class="grid">
+            <!-- Match Settings -->
+            <div class="section">
+                <h2>1. Match Settings</h2>
+                
+                <div class="form-group">
+                    <label>Select Stadium</label>
+                    <select id="stadium" onchange="updateStadiumInfo()">
+                        <option value="0">Wankhede Stadium</option>
+                        <option value="1">Eden Gardens</option>
+                        <option value="2">M. Chinnaswamy Stadium</option>
+                        <option value="3">Feroz Shah Kotla</option>
+                        <option value="4">Rajiv Gandhi Intl Stadium</option>
+                        <option value="5">MA Chidambaram Stadium</option>
+                        <option value="6">Sawai Mansingh Stadium</option>
+                        <option value="7">Punjab Cricket Association</option>
+                    </select>
+                    <div class="info-text" id="stadiumInfo">Max Capacity: 33,000 | Gates: 8 | Medical Stations: 4</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Match Type</label>
+                    <select id="matchType">
+                        <option value="league">League</option>
+                        <option value="playoff">Playoff</option>
+                        <option value="final">Final</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Expected Crowd</label>
+                    <input type="number" id="expectedCrowd" value="28710" min="1000" max="66000">
+                    <div class="info-text">Number of expected attendees</div>
+                </div>
+            </div>
+
+            <!-- Available Staff Roster -->
+            <div class="section">
+                <h2>2. Available Staff Roster</h2>
+                
+                <div class="counter-group">
+                    <label>Total Security Available</label>
+                    <div class="counter">
+                        <button onclick="changeValue('totalSecurity', -10)">−</button>
+                        <input type="number" id="totalSecurity" value="250" readonly>
+                        <button onclick="changeValue('totalSecurity', 10)">+</button>
+                    </div>
+                </div>
+
+                <div class="counter-group">
+                    <label>Total Medical Available</label>
+                    <div class="counter">
+                        <button onclick="changeValue('totalMedical', -5)">−</button>
+                        <input type="number" id="totalMedical" value="50" readonly>
+                        <button onclick="changeValue('totalMedical', 5)">+</button>
+                    </div>
+                </div>
+
+                <div class="counter-group">
+                    <label>Total Ticketing Available</label>
+                    <div class="counter">
+                        <button onclick="changeValue('totalTicketing', -5)">−</button>
+                        <input type="number" id="totalTicketing" value="50" readonly>
+                        <button onclick="changeValue('totalTicketing', 5)">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Strategy -->
+        <div class="deployment-section">
+            <h2>3. Deployment Strategy</h2>
+            
+            <h3 style="color: #a0a0a0; font-size: 1rem; margin-bottom: 15px;">Gate Personnel</h3>
+            <div class="gate-grid">
+                <div class="gate-card">
+                    <h3>Gate 1</h3>
+                    <div class="counter-group">
+                        <label>Security</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate1Security', -1)">−</button>
+                            <input type="number" id="gate1Security" value="12" style="width: 60px;">
+                            <button onclick="changeValue('gate1Security', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-group">
+                        <label>Ticketing</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate1Ticketing', -1)">−</button>
+                            <input type="number" id="gate1Ticketing" value="3" style="width: 60px;">
+                            <button onclick="changeValue('gate1Ticketing', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gate-card">
+                    <h3>Gate 2</h3>
+                    <div class="counter-group">
+                        <label>Security</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate2Security', -1)">−</button>
+                            <input type="number" id="gate2Security" value="12" style="width: 60px;">
+                            <button onclick="changeValue('gate2Security', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-group">
+                        <label>Ticketing</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate2Ticketing', -1)">−</button>
+                            <input type="number" id="gate2Ticketing" value="3" style="width: 60px;">
+                            <button onclick="changeValue('gate2Ticketing', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gate-card">
+                    <h3>Gate 3</h3>
+                    <div class="counter-group">
+                        <label>Security</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate3Security', -1)">−</button>
+                            <input type="number" id="gate3Security" value="12" style="width: 60px;">
+                            <button onclick="changeValue('gate3Security', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-group">
+                        <label>Ticketing</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate3Ticketing', -1)">−</button>
+                            <input type="number" id="gate3Ticketing" value="3" style="width: 60px;">
+                            <button onclick="changeValue('gate3Ticketing', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gate-card">
+                    <h3>Gate 4</h3>
+                    <div class="counter-group">
+                        <label>Security</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate4Security', -1)">−</button>
+                            <input type="number" id="gate4Security" value="12" style="width: 60px;">
+                            <button onclick="changeValue('gate4Security', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-group">
+                        <label>Ticketing</label>
+                        <div class="counter">
+                            <button onclick="changeValue('gate4Ticketing', -1)">−</button>
+                            <input type="number" id="gate4Ticketing" value="3" style="width: 60px;">
+                            <button onclick="changeValue('gate4Ticketing', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="color: #a0a0a0; font-size: 1rem; margin: 25px 0 15px 0;">Medical Posts</h3>
+            <div class="medical-grid">
+                <div class="gate-card">
+                    <h3>Main Stand</h3>
+                    <div class="counter-group">
+                        <div class="counter">
+                            <button onclick="changeValue('medicalMain', -1)">−</button>
+                            <input type="number" id="medicalMain" value="15" style="width: 60px;">
+                            <button onclick="changeValue('medicalMain', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gate-card">
+                    <h3>Pavilion</h3>
+                    <div class="counter-group">
+                        <div class="counter">
+                            <button onclick="changeValue('medicalPavilion', -1)">−</button>
+                            <input type="number" id="medicalPavilion" value="15" style="width: 60px;">
+                            <button onclick="changeValue('medicalPavilion', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gate-card">
+                    <h3>General Area</h3>
+                    <div class="counter-group">
+                        <div class="counter">
+                            <button onclick="changeValue('medicalGeneral', -1)">−</button>
+                            <input type="number" id="medicalGeneral" value="13" style="width: 60px;">
+                            <button onclick="changeValue('medicalGeneral', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <button class="evaluate-btn" style="background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%);" onclick="autoCalculate()">
+                    🧮 AUTO-CALCULATE OPTIMAL
+                </button>
+                <button class="evaluate-btn" style="background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%);" onclick="randomAllocation()">
+                    🎲 RANDOM ALLOCATION
+                </button>
+                <button class="evaluate-btn" onclick="evaluateDeployment()">
+                    🎯 EVALUATE DEPLOYMENT
+                </button>
+            </div>
+            
+            <div id="calculationInfo" style="background: #2a2a3e; padding: 15px; border-radius: 8px; margin-top: 15px; display: none;">
+                <h3 style="color: #fff; font-size: 1rem; margin-bottom: 10px;">📊 Calculation Details</h3>
+                <div id="calculationDetails" style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.6;"></div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #a0a0a0;">Evaluating your deployment...</p>
+        </div>
+
+        <!-- Results -->
+        <div class="result-section" id="results">
+            <h2>📊 Evaluation Results</h2>
+            
+            <div class="score-display">
+                <div class="score-value" id="scoreValue">0.000</div>
+                <div class="score-label">Overall Score</div>
+            </div>
+
+            <div class="breakdown">
+                <div class="breakdown-item">
+                    <h4>Security Accuracy</h4>
+                    <div class="value" id="securityScore">0.000</div>
+                </div>
+                <div class="breakdown-item">
+                    <h4>Medical Accuracy</h4>
+                    <div class="value" id="medicalScore">0.000</div>
+                </div>
+                <div class="breakdown-item">
+                    <h4>Ticketing Accuracy</h4>
+                    <div class="value" id="ticketingScore">0.000</div>
+                </div>
+                <div class="breakdown-item">
+                    <h4>Staffing Ratio</h4>
+                    <div class="value" id="staffingRatio">0.000x</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const stadiums = [
+            {name: "Wankhede Stadium", capacity: 33000, gates: 8, medical: 4},
+            {name: "Eden Gardens", capacity: 66000, gates: 12, medical: 6},
+            {name: "M. Chinnaswamy Stadium", capacity: 40000, gates: 10, medical: 5},
+            {name: "Feroz Shah Kotla", capacity: 41000, gates: 9, medical: 5},
+            {name: "Rajiv Gandhi Intl Stadium", capacity: 55000, gates: 11, medical: 6},
+            {name: "MA Chidambaram Stadium", capacity: 50000, gates: 10, medical: 5},
+            {name: "Sawai Mansingh Stadium", capacity: 30000, gates: 7, medical: 4},
+            {name: "Punjab Cricket Association", capacity: 26000, gates: 6, medical: 3}
+        ];
+
+        let currentScenario = null;
+
+        async function loadScenario() {
+            try {
+                console.log('Attempting to connect to http://localhost:8000/reset');
+                
+                // Reset environment to get a new scenario
+                const response = await fetch('http://localhost:8000/reset', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({task_id: 1})
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                currentScenario = data.observation.data;
+                
+                const stadium = currentScenario.stadium;
+                
+                // Update UI with scenario
+                const stadiumIdx = stadiums.findIndex(s => s.name === stadium.name);
+                if (stadiumIdx >= 0) {
+                    document.getElementById('stadium').value = stadiumIdx;
+                }
+                
+                document.getElementById('matchType').value = stadium.match_type;
+                const expectedCrowd = Math.round(stadium.capacity * stadium.expected_crowd_percentage);
+                document.getElementById('expectedCrowd').value = expectedCrowd;
+                
+                updateStadiumInfo();
+                
+                // Show scenario details
+                const scenarioHtml = `
+                    <strong>Stadium:</strong> ${stadium.name}<br>
+                    <strong>Capacity:</strong> ${stadium.capacity.toLocaleString()}<br>
+                    <strong>Expected Crowd:</strong> ${(stadium.expected_crowd_percentage * 100).toFixed(0)}% (${expectedCrowd.toLocaleString()} people)<br>
+                    <strong>Match Type:</strong> ${stadium.match_type.toUpperCase()}<br>
+                    <strong>Gates:</strong> ${stadium.gates_count} | <strong>Medical Stations:</strong> ${stadium.medical_stations}
+                `;
+                
+                document.getElementById('scenarioDetails').innerHTML = scenarioHtml;
+                document.getElementById('scenarioInfo').style.display = 'block';
+                
+                alert('✅ New scenario loaded! Click "AUTO-CALCULATE OPTIMAL" to see the correct allocation.');
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert(`❌ Connection Error: ${error.message}\n\nPlease check:\n1. Server is running (python app/main.py)\n2. No firewall blocking localhost:8000\n3. Try refreshing the page`);
+            }
+        }
+
+        function updateStadiumInfo() {
+            const idx = document.getElementById('stadium').value;
+            const stadium = stadiums[idx];
+            document.getElementById('stadiumInfo').textContent = 
+                `Max Capacity: ${stadium.capacity.toLocaleString()} | Gates: ${stadium.gates} | Medical Stations: ${stadium.medical}`;
+        }
+
+        function changeValue(id, delta) {
+            const input = document.getElementById(id);
+            const newValue = parseInt(input.value) + delta;
+            if (newValue >= 0) {
+                input.value = newValue;
+            }
+        }
+
+        function switchTab(taskId) {
+            // For now, only task 1 is implemented
+            if (taskId !== 1) {
+                alert('This task is coming soon!');
+            }
+        }
+
+        async function autoCalculate() {
+            // Get current settings
+            const stadiumIdx = parseInt(document.getElementById('stadium').value);
+            const stadium = stadiums[stadiumIdx];
+            const matchType = document.getElementById('matchType').value;
+            const expectedCrowd = parseInt(document.getElementById('expectedCrowd').value);
+
+            // Safety ratios
+            const securityRatios = {
+                'league': 2.5,
+                'playoff': 3.5,
+                'final': 5.0
+            };
+            const medicalRatio = 1.5;
+            const ticketingRatio = 0.8;
+
+            // Calculate optimal values
+            const securityRatio = securityRatios[matchType];
+            const optimalTotalSecurity = Math.round((expectedCrowd / 1000) * securityRatio);
+            const optimalSecurityPerGate = Math.max(2, Math.floor(optimalTotalSecurity / stadium.gates));
+            const optimalMedical = Math.round((expectedCrowd / 1000) * medicalRatio);
+            const optimalTicketing = Math.round((expectedCrowd / 1000) * ticketingRatio);
+
+            // Distribute security across gates (using actual gate count from scenario)
+            const actualGates = currentScenario ? currentScenario.stadium.gates_count : 4;
+            const securityPerGate = Math.floor(optimalTotalSecurity / actualGates);
+            
+            // For UI (4 gates), distribute evenly
+            const uiSecurityPerGate = Math.floor(optimalTotalSecurity / 4);
+            document.getElementById('gate1Security').value = uiSecurityPerGate;
+            document.getElementById('gate2Security').value = uiSecurityPerGate;
+            document.getElementById('gate3Security').value = uiSecurityPerGate;
+            document.getElementById('gate4Security').value = uiSecurityPerGate;
+
+            // Distribute ticketing across gates
+            const ticketingPerGate = Math.floor(optimalTicketing / 4);
+            document.getElementById('gate1Ticketing').value = ticketingPerGate;
+            document.getElementById('gate2Ticketing').value = ticketingPerGate;
+            document.getElementById('gate3Ticketing').value = ticketingPerGate;
+            document.getElementById('gate4Ticketing').value = ticketingPerGate;
+
+            // Distribute medical across posts
+            const medicalMain = Math.floor(optimalMedical * 0.35);
+            const medicalPavilion = Math.floor(optimalMedical * 0.35);
+            const medicalGeneral = optimalMedical - medicalMain - medicalPavilion;
+            
+            document.getElementById('medicalMain').value = medicalMain;
+            document.getElementById('medicalPavilion').value = medicalPavilion;
+            document.getElementById('medicalGeneral').value = medicalGeneral;
+
+            // Show calculation details
+            const details = `
+                <strong>Expected Crowd:</strong> ${expectedCrowd.toLocaleString()} people<br>
+                <strong>Match Type:</strong> ${matchType.toUpperCase()}<br>
+                <strong>Stadium:</strong> ${stadium.name}<br><br>
+                
+                <strong>📐 Calculations:</strong><br>
+                • Security Ratio: ${securityRatio} per 1,000 people<br>
+                • Total Security = (${expectedCrowd.toLocaleString()} ÷ 1,000) × ${securityRatio} = <strong>${optimalTotalSecurity}</strong><br>
+                • Security per Gate = ${optimalTotalSecurity} ÷ ${actualGates} = <strong>${securityPerGate}</strong><br>
+                • UI Distribution (4 gates) = <strong>${uiSecurityPerGate} each</strong><br><br>
+                
+                • Medical Ratio: ${medicalRatio} per 1,000 people<br>
+                • Total Medical = (${expectedCrowd.toLocaleString()} ÷ 1,000) × ${medicalRatio} = <strong>${optimalMedical}</strong><br>
+                • Distribution: Main (${medicalMain}), Pavilion (${medicalPavilion}), General (${medicalGeneral})<br><br>
+                
+                • Ticketing Ratio: ${ticketingRatio} per 1,000 people<br>
+                • Total Ticketing = (${expectedCrowd.toLocaleString()} ÷ 1,000) × ${ticketingRatio} = <strong>${optimalTicketing}</strong><br>
+                • Ticketing per Gate = ${optimalTicketing} ÷ 4 = <strong>${ticketingPerGate}</strong><br><br>
+                
+                <strong style="color: #5f27cd;">💡 These are the OPTIMAL values for maximum score!</strong>
+            `;
+
+            document.getElementById('calculationDetails').innerHTML = details;
+            document.getElementById('calculationInfo').style.display = 'block';
+
+            // Scroll to show calculations
+            document.getElementById('calculationInfo').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }
+
+        function randomAllocation() {
+            // Get current settings for baseline
+            const expectedCrowd = parseInt(document.getElementById('expectedCrowd').value);
+            const matchType = document.getElementById('matchType').value;
+
+            // Calculate rough estimates
+            const securityRatios = {
+                'league': 2.5,
+                'playoff': 3.5,
+                'final': 5.0
+            };
+            
+            const baseSecurityTotal = Math.round((expectedCrowd / 1000) * securityRatios[matchType]);
+            const baseMedical = Math.round((expectedCrowd / 1000) * 1.5);
+            const baseTicketing = Math.round((expectedCrowd / 1000) * 0.8);
+
+            // Generate random variations (±30% to ±50% from optimal)
+            const randomVariation = () => 0.5 + Math.random() * 1.0; // 0.5x to 1.5x
+
+            // Random security per gate (with variation)
+            const gate1Sec = Math.max(5, Math.floor((baseSecurityTotal / 4) * randomVariation()));
+            const gate2Sec = Math.max(5, Math.floor((baseSecurityTotal / 4) * randomVariation()));
+            const gate3Sec = Math.max(5, Math.floor((baseSecurityTotal / 4) * randomVariation()));
+            const gate4Sec = Math.max(5, Math.floor((baseSecurityTotal / 4) * randomVariation()));
+
+            document.getElementById('gate1Security').value = gate1Sec;
+            document.getElementById('gate2Security').value = gate2Sec;
+            document.getElementById('gate3Security').value = gate3Sec;
+            document.getElementById('gate4Security').value = gate4Sec;
+
+            // Random ticketing per gate
+            const gate1Tick = Math.max(2, Math.floor((baseTicketing / 4) * randomVariation()));
+            const gate2Tick = Math.max(2, Math.floor((baseTicketing / 4) * randomVariation()));
+            const gate3Tick = Math.max(2, Math.floor((baseTicketing / 4) * randomVariation()));
+            const gate4Tick = Math.max(2, Math.floor((baseTicketing / 4) * randomVariation()));
+
+            document.getElementById('gate1Ticketing').value = gate1Tick;
+            document.getElementById('gate2Ticketing').value = gate2Tick;
+            document.getElementById('gate3Ticketing').value = gate3Tick;
+            document.getElementById('gate4Ticketing').value = gate4Tick;
+
+            // Random medical distribution
+            const medMain = Math.max(5, Math.floor(baseMedical * 0.35 * randomVariation()));
+            const medPav = Math.max(5, Math.floor(baseMedical * 0.35 * randomVariation()));
+            const medGen = Math.max(5, Math.floor(baseMedical * 0.30 * randomVariation()));
+
+            document.getElementById('medicalMain').value = medMain;
+            document.getElementById('medicalPavilion').value = medPav;
+            document.getElementById('medicalGeneral').value = medGen;
+
+            // Calculate totals
+            const totalSec = gate1Sec + gate2Sec + gate3Sec + gate4Sec;
+            const totalTick = gate1Tick + gate2Tick + gate3Tick + gate4Tick;
+            const totalMed = medMain + medPav + medGen;
+
+            // Show random allocation details
+            const details = `
+                <strong style="color: #ff9ff3;">🎲 Random Allocation Generated!</strong><br><br>
+                
+                <strong>Total Security:</strong> ${totalSec} (Base: ${baseSecurityTotal})<br>
+                • Gate 1: ${gate1Sec} | Gate 2: ${gate2Sec} | Gate 3: ${gate3Sec} | Gate 4: ${gate4Sec}<br><br>
+                
+                <strong>Total Medical:</strong> ${totalMed} (Base: ${baseMedical})<br>
+                • Main Stand: ${medMain} | Pavilion: ${medPav} | General: ${medGen}<br><br>
+                
+                <strong>Total Ticketing:</strong> ${totalTick} (Base: ${baseTicketing})<br>
+                • Gate 1: ${gate1Tick} | Gate 2: ${gate2Tick} | Gate 3: ${gate3Tick} | Gate 4: ${gate4Tick}<br><br>
+                
+                <strong style="color: #feca57;">⚠️ This is a random allocation - score may vary!</strong><br>
+                Click "EVALUATE DEPLOYMENT" to see how well this random allocation performs.
+            `;
+
+            document.getElementById('calculationDetails').innerHTML = details;
+            document.getElementById('calculationInfo').style.display = 'block';
+
+            // Scroll to show details
+            document.getElementById('calculationInfo').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }
+
+        async function evaluateDeployment() {
+            // Make sure we have a scenario loaded
+            if (!currentScenario) {
+                alert('⚠️ Please click "Load New Scenario" first to initialize the environment!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+
+            // Calculate totals
+            const totalSecurity = 
+                parseInt(document.getElementById('gate1Security').value) +
+                parseInt(document.getElementById('gate2Security').value) +
+                parseInt(document.getElementById('gate3Security').value) +
+                parseInt(document.getElementById('gate4Security').value);
+
+            const totalTicketing =
+                parseInt(document.getElementById('gate1Ticketing').value) +
+                parseInt(document.getElementById('gate2Ticketing').value) +
+                parseInt(document.getElementById('gate3Ticketing').value) +
+                parseInt(document.getElementById('gate4Ticketing').value);
+
+            const totalMedical =
+                parseInt(document.getElementById('medicalMain').value) +
+                parseInt(document.getElementById('medicalPavilion').value) +
+                parseInt(document.getElementById('medicalGeneral').value);
+
+            const action = {
+                security_per_gate: Math.floor(totalSecurity / 4),
+                total_security: totalSecurity,
+                medical_personnel: totalMedical,
+                ticketing_staff: totalTicketing
+            };
+
+            try {
+                // Submit to API
+                const response = await fetch('http://localhost:8000/step', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: action})
+                });
+
+                const result = await response.json();
+                
+                // Hide loading
+                document.getElementById('loading').classList.remove('show');
+                
+                // Show results
+                document.getElementById('results').classList.add('show');
+                document.getElementById('scoreValue').textContent = result.reward.toFixed(3);
+                
+                const breakdown = result.info.grading_details.breakdown;
+                document.getElementById('securityScore').textContent = breakdown.security_score.toFixed(3);
+                document.getElementById('medicalScore').textContent = breakdown.medical_score.toFixed(3);
+                document.getElementById('ticketingScore').textContent = breakdown.ticketing_score.toFixed(3);
+                document.getElementById('staffingRatio').textContent = breakdown.total_staffing_ratio.toFixed(3) + 'x';
+
+                // Scroll to results
+                document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+            } catch (error) {
+                document.getElementById('loading').classList.remove('show');
+                alert('Error: Could not connect to server. Make sure it\'s running on http://localhost:8000');
+            }
+        }
+
+        // Initialize - load scenario on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateStadiumInfo();
+            // Don't auto-load scenario - let user click the button
+            console.log('Page loaded. Click "Load New Scenario" to start.');
+        });
+    </script>
+</body>
+</html>

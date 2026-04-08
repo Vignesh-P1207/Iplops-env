@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPLOps-Env - AI-Powered Playing XI Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #ff9ff3;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .section {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a3e;
+            border: 1px solid #3a3a4e;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+
+        .info-card {
+            background: #2a2a3e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .info-card h3 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #3a3a4e;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-right: 10px;
+            margin-bottom: 8px;
+        }
+
+        .info-badge.green { background: #10b98120; color: #10b981; }
+        .info-badge.blue { background: #3b82f620; color: #3b82f6; }
+        .info-badge.yellow { background: #f59e0b20; color: #f59e0b; }
+        .info-badge.red { background: #ff475720; color: #ff4757; }
+        .info-badge.purple { background: #5f27cd20; color: #5f27cd; }
+
+        .btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%);
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .selected-xi {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .xi-slot {
+            background: #2a2a3e;
+            padding: 15px 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 2px solid transparent;
+        }
+
+        .xi-slot.filled {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #10b981;
+        }
+
+        .xi-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .player-card {
+            background: #2a2a3e;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .player-card:hover {
+            border-color: #ff4757;
+            transform: translateY(-2px);
+        }
+
+        .player-card.selected {
+            border-color: #10b981;
+            background: #1e2e1e;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .player-role {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #3a3a4e;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .player-stats {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        .spinner {
+            border: 3px solid #3a3a4e;
+            border-top: 3px solid #ff4757;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .score-value {
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-label {
+            color: #a0a0a0;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .reasoning-box {
+            background: #2a2a3e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .reasoning-box h3 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .reasoning-item {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .reasoning-item:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏏 AI-Powered Playing XI Selection</h1>
+            <p>Intelligent team selection based on pitch, form, stats, and opponent analysis</p>
+            <a href="/" class="nav-link">⬅️ Back to Task 1: Staff Allocation</a>
+        </div>
+
+        <!-- Scenario Configuration -->
+        <div class="section">
+            <h2>⚙️ Match Configuration</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Select Stadium Venue</label>
+                    <select id="venue">
+                        <option value="">Loading stadiums...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Your IPL Team</label>
+                    <select id="team">
+                        <option>Mumbai Indians</option>
+                        <option>Chennai Super Kings</option>
+                        <option>Royal Challengers Bangalore</option>
+                        <option>Kolkata Knight Riders</option>
+                        <option>Delhi Capitals</option>
+                        <option>Punjab Kings</option>
+                        <option>Rajasthan Royals</option>
+                        <option>Sunrisers Hyderabad</option>
+                        <option>Lucknow Super Giants</option>
+                        <option>Gujarat Titans</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top: 15px;">
+                <div class="form-group">
+                    <label>Opponent Team</label>
+                    <select id="opponent">
+                        <option>Chennai Super Kings</option>
+                        <option>Mumbai Indians</option>
+                        <option>Royal Challengers Bangalore</option>
+                        <option>Kolkata Knight Riders</option>
+                        <option>Delhi Capitals</option>
+                        <option>Punjab Kings</option>
+                        <option>Rajasthan Royals</option>
+                        <option>Sunrisers Hyderabad</option>
+                        <option>Lucknow Super Giants</option>
+                        <option>Gujarat Titans</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Opponent Weakness</label>
+                    <select id="opponentWeakness">
+                        <option value="spin">Spin Bowling</option>
+                        <option value="pace">Pace Bowling</option>
+                        <option value="swing">Swing Bowling</option>
+                    </select>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="loadScenario()">
+                    🎲 Load Match & AI Select Team
+                </button>
+                <button class="btn btn-ai" onclick="aiSelectTeam()">
+                    🔄 Re-run AI Selection
+                </button>
+            </div>
+        </div>
+
+        <!-- Pitch Report -->
+        <div class="section" id="pitchSection" style="display: none;">
+            <h2>🏟️ Detailed Pitch Report</h2>
+            <div id="pitchReport"></div>
+        </div>
+
+        <!-- Squad Display -->
+        <div class="section" id="squadSection" style="display: none;">
+            <h2>👥 Available Squad (<span id="squadCount">0</span> Players)</h2>
+            <p style="color: #a0a0a0; margin-bottom: 15px;">
+                Click on players to select/deselect for your Playing XI
+                <span style="margin-left: 20px; color: #10b981;">
+                    Selected: <span id="selectedCount">0</span>/11 players
+                </span>
+                <span style="margin-left: 20px; color: #ff9ff3;">
+                    Bowlers: <span id="bowlerCount">0</span>/5 minimum
+                </span>
+            </p>
+            
+            <div class="selected-xi" id="selectedXI"></div>
+            
+            <div class="player-grid" id="playerGrid"></div>
+        </div>
+
+        <!-- AI Recommendation -->
+        <div class="section" id="aiSection" style="display: none;">
+            <h2>🤖 AI Recommendation</h2>
+            <div id="aiRecommendation"></div>
+        </div>
+
+        <!-- Evaluate Button -->
+        <div class="section" id="evaluateSection" style="display: none;">
+            <button class="btn" onclick="evaluateTeam()" style="width: 100%; padding: 18px; font-size: 1.2rem;">
+                🎯 EVALUATE TEAM SELECTION
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div class="section" id="results" style="display: none;">
+            <h2>📊 Evaluation Results</h2>
+            <div class="score-display">
+                <div class="score-value" id="scoreValue">0.000</div>
+                <div class="score-label">Overall Team Score</div>
+            </div>
+            <div id="detailedResults"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPlayers = [];
+        let allPlayers = [];
+        let currentScenario = null;
+        let aiRecommendation = null;
+
+        // Load stadiums on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadStadiums();
+        });
+
+        async function loadStadiums() {
+            try {
+                const response = await fetch('http://localhost:8000/api/ipl/stadiums');
+                const data = await response.json();
+                
+                const venueSelect = document.getElementById('venue');
+                venueSelect.innerHTML = data.stadiums.map(stadium => 
+                    `<option value="${stadium}">${stadium}</option>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading stadiums:', error);
+            }
+        }
+
+        async function loadScenario() {
+            const team = document.getElementById('team').value;
+            const venue = document.getElementById('venue').value;
+            const opponent = document.getElementById('opponent').value;
+            const weakness = document.getElementById('opponentWeakness').value;
+            
+            if (!venue) {
+                alert('Please select a stadium venue');
+                return;
+            }
+            
+            try {
+                // Show loading
+                document.getElementById('squadSection').style.display = 'block';
+                document.getElementById('playerGrid').innerHTML = '<div class="loading"><div class="spinner"></div>Loading squad and AI is analyzing best team...</div>';
+                
+                // Reset environment
+                const resetResponse = await fetch('http://localhost:8000/reset', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({task_id: 2})
+                });
+                
+                if (!resetResponse.ok) throw new Error('Failed to reset environment');
+                const resetData = await resetResponse.json();
+                currentScenario = resetData.observation;
+                
+                // Load squad
+                const squadResponse = await fetch(`http://localhost:8000/api/ipl/squad/${encodeURIComponent(team)}`);
+                if (!squadResponse.ok) throw new Error('Failed to load squad');
+                const squadData = await squadResponse.json();
+                allPlayers = squadData.squad;
+                
+                // Load pitch report
+                const pitchResponse = await fetch(`http://localhost:8000/api/ipl/pitch/${encodeURIComponent(venue)}`);
+                if (pitchResponse.ok) {
+                    const pitchData = await pitchResponse.json();
+                    displayPitchReport(pitchData.pitch_report);
+                }
+                
+                document.getElementById('squadCount').textContent = allPlayers.length;
+                document.getElementById('pitchSection').style.display = 'block';
+                document.getElementById('squadSection').style.display = 'block';
+                
+                // AUTOMATICALLY RUN AI SELECTION
+                await aiSelectTeam(true); // Pass true to indicate auto-run
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error loading scenario: ' + error.message);
+            }
+        }
+
+        function displayPitchReport(pitch) {
+            const html = `
+                <div class="grid-3">
+                    <div class="info-card">
+                        <h3>Pitch Characteristics</h3>
+                        <div class="info-badge green">Type: ${pitch.pitch_type}</div>
+                        <div class="info-badge blue">Pace/Bounce: ${pitch.pace_bounce}</div>
+                        <div class="info-badge yellow">Spin: ${pitch.spin_assistance}</div>
+                        <div class="info-badge purple">Dew: ${pitch.dew_factor}</div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Expected Scores</h3>
+                        <div class="info-badge">1st Innings: ${pitch.avg_first_innings}</div>
+                        <div class="info-badge">2nd Innings: ${pitch.avg_second_innings}</div>
+                        <div class="info-badge">Boundary: ${pitch.boundary_size}</div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Recommendation</h3>
+                        <p style="color: #e0e0e0; font-size: 0.9rem; line-height: 1.6;">${pitch.recommendation}</p>
+                    </div>
+                </div>
+                <div class="info-card" style="margin-top: 15px;">
+                    <h3>Key Characteristics</h3>
+                    ${pitch.characteristics.map(c => `<div class="info-badge">${c}</div>`).join('')}
+                </div>
+            `;
+            document.getElementById('pitchReport').innerHTML = html;
+        }
+
+        function renderPlayerGrid() {
+            const grid = document.getElementById('playerGrid');
+            grid.innerHTML = allPlayers.map((player, idx) => `
+                <div class="player-card ${selectedPlayers.includes(idx) ? 'selected' : ''}" onclick="togglePlayer(${idx})">
+                    <div class="player-name">${player.name}</div>
+                    <div class="player-role">${player.role.replace('_', ' ')}</div>
+                    <div class="player-stats">
+                        <div class="stat-row">
+                            <span>Batting Avg:</span>
+                            <span>${player.batting_avg || 'N/A'}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Strike Rate:</span>
+                            <span>${player.strike_rate || 'N/A'}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Recent Form:</span>
+                            <span>${player.recent_form || 'N/A'}/100</span>
+                        </div>
+                        ${player.bowling_economy ? `
+                        <div class="stat-row">
+                            <span>Economy:</span>
+                            <span>${player.bowling_economy}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function togglePlayer(idx) {
+            if (selectedPlayers.includes(idx)) {
+                selectedPlayers = selectedPlayers.filter(i => i !== idx);
+            } else {
+                if (selectedPlayers.length < 11) {
+                    selectedPlayers.push(idx);
+                } else {
+                    alert('You can only select 11 players!');
+                    return;
+                }
+            }
+            renderPlayerGrid();
+            renderSelectedXI();
+        }
+
+        function renderSelectedXI() {
+            const container = document.getElementById('selectedXI');
+            container.innerHTML = '';
+            
+            // Update counters
+            document.getElementById('selectedCount').textContent = selectedPlayers.length;
+            
+            const bowlerCount = selectedPlayers.filter(idx => 
+                allPlayers[idx].bowling_economy !== null && allPlayers[idx].bowling_economy !== undefined
+            ).length;
+            document.getElementById('bowlerCount').textContent = bowlerCount;
+            document.getElementById('bowlerCount').style.color = bowlerCount >= 5 ? '#10b981' : '#ff4757';
+            
+            for (let i = 0; i < 11; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'xi-slot' + (selectedPlayers[i] !== undefined ? ' filled' : '');
+                
+                if (selectedPlayers[i] !== undefined) {
+                    const player = allPlayers[selectedPlayers[i]];
+                    const lastName = player.name.split(' ').pop();
+                    slot.innerHTML = `
+                        <div class="xi-number">${i + 1}</div>
+                        <div style="font-size: 0.75rem;">${lastName}</div>
+                    `;
+                } else {
+                    slot.innerHTML = `<div class="xi-number">${i + 1}</div><div style="color: #666; font-size: 0.75rem;">Empty</div>`;
+                }
+                
+                container.appendChild(slot);
+            }
+        }
+
+        async function aiSelectTeam(autoRun = false) {
+            const team = document.getElementById('team').value;
+            const venue = document.getElementById('venue').value;
+            const opponent = document.getElementById('opponent').value;
+            const weakness = document.getElementById('opponentWeakness').value;
+            
+            if (!venue) {
+                alert('Please select a stadium venue first');
+                return;
+            }
+            
+            try {
+                document.getElementById('aiSection').style.display = 'block';
+                document.getElementById('aiRecommendation').innerHTML = '<div class="loading"><div class="spinner"></div>🤖 AI analyzing pitch, form, stats, and opponent to select optimal team...</div>';
+                
+                const response = await fetch('http://localhost:8000/api/ipl/select-team', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        team_name: team,
+                        venue: venue,
+                        opponent_name: opponent,
+                        opponent_weakness: weakness
+                    })
+                });
+                
+                if (!response.ok) throw new Error('AI selection failed');
+                
+                aiRecommendation = await response.json();
+                displayAIRecommendation(aiRecommendation);
+                
+                // Auto-select the AI recommended players
+                selectedPlayers = aiRecommendation.selected_players.map(name => 
+                    allPlayers.findIndex(p => p.name === name)
+                ).filter(idx => idx !== -1);
+                
+                renderPlayerGrid();
+                renderSelectedXI();
+                
+                document.getElementById('evaluateSection').style.display = 'block';
+                
+                if (autoRun) {
+                    // Scroll to AI recommendation
+                    document.getElementById('aiSection').scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ AI selection error: ' + error.message);
+            }
+        }
+
+        function displayAIRecommendation(rec) {
+            const criteria = rec.selection_criteria || {};
+            const selectionMethod = rec.selection_method || 'Algorithmic';
+            const isGPT = selectionMethod.includes('GPT');
+            
+            const html = `
+                <div class="reasoning-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>🎯 AI Selection Criteria</h3>
+                        <div class="info-badge ${isGPT ? 'green' : 'blue'}" style="font-size: 0.9rem; padding: 8px 15px;">
+                            ${isGPT ? '🧠 ' : '📊 '}${selectionMethod}
+                        </div>
+                    </div>
+                    ${isGPT && rec.reasoning.gpt_reasoning ? `
+                        <div class="reasoning-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>GPT-4 Analysis:</strong> ${rec.reasoning.gpt_reasoning}
+                        </div>
+                    ` : ''}
+                    <div class="grid-3" style="margin-top: 10px; margin-bottom: 15px;">
+                        <div class="info-badge blue">Recent Form: ${criteria.form_weight || '25%'}</div>
+                        <div class="info-badge green">Pitch Suitability: ${criteria.pitch_weight || '35%'}</div>
+                        <div class="info-badge yellow">Batting Avg: ${criteria.avg_weight || '15%'}</div>
+                        <div class="info-badge purple">Strike Rate: ${criteria.sr_weight || '10%'}</div>
+                        <div class="info-badge red">Opponent Matchup: ${criteria.opponent_weight || '15%'}</div>
+                    </div>
+                    <h3 style="margin-top: 20px;">📋 Selection Analysis</h3>
+                    <div class="reasoning-item">${rec.reasoning.pitch_analysis}</div>
+                    <div class="reasoning-item">${rec.reasoning.team_composition}</div>
+                    <div class="reasoning-item">Strategy: ${rec.reasoning.strategy}</div>
+                    <div class="reasoning-item">${rec.reasoning.opponent_weakness}</div>
+                </div>
+                <div class="grid-3" style="margin-top: 15px;">
+                    <div class="info-card">
+                        <h3>Team Strength</h3>
+                        <div class="info-badge green">Batting: ${(rec.team_strength.batting * 100).toFixed(0)}%</div>
+                        <div class="info-badge blue">Bowling: ${(rec.team_strength.bowling * 100).toFixed(0)}%</div>
+                        <div class="info-badge yellow">Form: ${(rec.team_strength.form * 100).toFixed(0)}%</div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Key Players</h3>
+                        ${rec.reasoning.key_players.map(p => `<div class="info-badge">${p}</div>`).join('')}
+                    </div>
+                    <div class="info-card">
+                        <h3>Overall Rating</h3>
+                        <div style="font-size: 2rem; color: #10b981; font-weight: 700; text-align: center;">
+                            ${(rec.team_strength.overall * 100).toFixed(0)}%
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('aiRecommendation').innerHTML = html;
+        }
+
+        async function evaluateTeam() {
+            if (selectedPlayers.length !== 11) {
+                alert('Please select exactly 11 players!');
+                return;
+            }
+
+            // Validate minimum 5 bowlers
+            const bowlingCount = selectedPlayers.filter(idx => 
+                allPlayers[idx].bowling_economy !== null && allPlayers[idx].bowling_economy !== undefined
+            ).length;
+            
+            if (bowlingCount < 5) {
+                alert(`⚠️ You need at least 5 bowling options!\nCurrently selected: ${bowlingCount} bowlers\nPlease select ${5 - bowlingCount} more bowlers or all-rounders.`);
+                return;
+            }
+
+            try {
+                const selectedPlayersList = selectedPlayers.map(idx => allPlayers[idx].name);
+                
+                const action = {
+                    selected_players: selectedPlayersList,
+                    batting_order: selectedPlayersList.map((name, i) => ({
+                        player_name: name,
+                        position: i + 1
+                    })),
+                    bowling_plan: allPlayers
+                        .filter((p, idx) => selectedPlayers.includes(idx) && p.bowling_economy)
+                        .map(p => ({
+                            bowler_name: p.name,
+                            overs_allocated: 4.0,
+                            phase: "middle"
+                        }))
+                };
+
+                const response = await fetch('http://localhost:8000/step', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: action})
+                });
+
+                if (!response.ok) throw new Error('Evaluation failed');
+
+                const result = await response.json();
+                
+                document.getElementById('scoreValue').textContent = result.reward.toFixed(3);
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+                
+                if (result.info && result.info.breakdown) {
+                    displayDetailedResults(result.info.breakdown);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Evaluation error: ' + error.message);
+            }
+        }
+
+        function displayDetailedResults(breakdown) {
+            const html = `
+                <div class="grid-3">
+                    ${Object.entries(breakdown).map(([key, value]) => `
+                        <div class="info-card">
+                            <h3>${key.replace(/_/g, ' ').toUpperCase()}</h3>
+                            <div style="font-size: 1.5rem; color: #10b981; font-weight: 600;">
+                                ${(value * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('detailedResults').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
