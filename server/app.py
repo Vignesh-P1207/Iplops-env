@@ -7,10 +7,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.main import app
 
-def run():
+def main():
     import uvicorn
     print("Starting server from server/app.py...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 if __name__ == "__main__":
-    run()
+    main()
