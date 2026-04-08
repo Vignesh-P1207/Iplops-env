@@ -19,8 +19,14 @@ SUCCESS_SCORE_THRESHOLD = 0.7
 
 def get_llm_client() -> OpenAI:
     """Create the OpenAI client using injected proxy credentials."""
+    # Clear any proxy env vars that might interfere with the OpenAI client
+    for key in ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'NO_PROXY', 'no_proxy']:
+        os.environ.pop(key, None)
+    
     api_base = os.environ["API_BASE_URL"]
     api_key = os.environ["API_KEY"]
+    
+    # Minimal client initialization
     return OpenAI(base_url=api_base, api_key=api_key)
 
 
