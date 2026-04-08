@@ -1,0 +1,126 @@
+name: iplops-env
+version: 1.0.0
+description: Indian Premier League Operations Environment - Real-world IPL match operations simulation for AI agent evaluation
+author: OpenEnv Hackathon Team
+tags:
+  - sports
+  - cricket
+  - ipl
+  - operations
+  - india
+  - real-world
+
+tasks:
+  - id: 1
+    name: Match Day Staff Allocation
+    difficulty: easy
+    description: Allocate security, medical, and ticketing staff based on stadium capacity and match type
+    max_score: 1.0
+    success_threshold: 0.85
+    
+  - id: 2
+    name: Playing XI Selection
+    difficulty: medium
+    description: Select best 11 players using real IPL data, pitch conditions, and opponent analysis
+    max_score: 1.0
+    success_threshold: 0.75
+    
+  - id: 3
+    name: Live Crisis Management
+    difficulty: hard
+    description: Handle multiple simultaneous crises during live match operations
+    max_score: 1.0
+    success_threshold: 0.70
+
+interface:
+  type: rest_api
+  base_url: http://localhost:8000
+  endpoints:
+    reset: /reset
+    step: /step
+    observation: /observation
+    state: /state
+    health: /health
+  
+  action_space:
+    task1:
+      type: object
+      properties:
+        security_per_gate: {type: integer, minimum: 1}
+        total_security: {type: integer, minimum: 1}
+        medical_personnel: {type: integer, minimum: 1}
+        ticketing_staff: {type: integer, minimum: 1}
+    task2:
+      type: object
+      properties:
+        playing_xi: {type: array, items: {type: string}, minItems: 11, maxItems: 11}
+        batting_order: {type: array, items: {type: string}, minItems: 11, maxItems: 11}
+        bowling_combination: {type: object}
+    task3:
+      type: object
+      properties:
+        priority_order: {type: array, minItems: 5, maxItems: 5}
+        decisions: {type: object}
+        timeline: {type: object}
+        risk_assessment: {type: object}
+  
+  observation_space:
+    type: object
+    properties:
+      task_id: {type: integer, minimum: 1, maximum: 3}
+      task_type: {type: string}
+      data: {type: object}
+      timestamp: {type: string, format: date-time}
+
+scoring:
+  type: continuous
+  range: [0.0, 1.0]
+  higher_is_better: true
+  partial_credit: true
+  
+  components:
+    task1:
+      - name: security_accuracy
+        weight: 0.35
+      - name: medical_accuracy
+        weight: 0.25
+      - name: ticketing_accuracy
+        weight: 0.20
+      - name: no_overstaffing
+        weight: 0.10
+      - name: no_understaffing
+        weight: 0.10
+    
+    task2:
+      - name: team_balance
+        weight: 0.30
+      - name: pitch_fit
+        weight: 0.40
+      - name: opponent_matchup
+        weight: 0.30
+    
+    task3:
+      - name: priority_ordering
+        weight: 0.35
+      - name: decision_quality
+        weight: 0.40
+      - name: operational_feasibility
+        weight: 0.25
+
+docker:
+  image: iplops-env
+  port: 8000
+  build_args: []
+  
+deployment:
+  platform: huggingface_spaces
+  runtime: docker
+  hardware: cpu-basic
+  
+baseline:
+  script: inference.py
+  expected_scores:
+    task1: 0.95
+    task2: 0.85
+    task3: 0.75
+  runtime_minutes: 5
