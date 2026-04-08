@@ -12,7 +12,7 @@ import httpx
 from openai import OpenAI
 
 # Read env vars — client is created lazily inside llm_call to avoid crash at import time
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o")
+MODEL_NAME = os.getenv("MODEL_NAME", os.getenv("MODEL", "gpt-4o"))
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
 BENCHMARK = "iplops-env"
 SUCCESS_SCORE_THRESHOLD = 0.7
@@ -34,8 +34,7 @@ def get_llm_client() -> OpenAI:
 def llm_call(system: str, user: str) -> str:
     """Make a call through the OpenEnv LLM proxy and return the text response."""
     client = get_llm_client()
-    # Debug: confirm we're about to call the proxy
-    print(f"[DEBUG] Calling LLM proxy at {os.environ.get('API_BASE_URL', 'MISSING')}", file=sys.stderr, flush=True)
+    print(f"[DEBUG] Calling LLM proxy at {os.environ.get('API_BASE_URL', 'MISSING')} model={MODEL_NAME}", file=sys.stderr, flush=True)
     response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=[
@@ -77,6 +76,14 @@ class IPLOpsAgent:
     def __init__(self, base_url: str = "http://localhost:8000"):
         self.base_url = base_url
 
+    def _llm_solve(self, system: str, user: str) -> Optional[str]:
+        """Call LLM and return raw text, or None if it fails."""
+        try:
+            return llm_call(system, user)
+        except Exception as e:
+            print(f"[DEBUG] LLM call failed: {e}", file=sys.stderr, flush=True)
+            return None
+
     def solve_task1(self, observation: dict) -> dict:
         """Task 1: Staff Allocation — decided by LLM."""
         system = (
@@ -87,23 +94,23 @@ class IPLOpsAgent:
             "Return only valid JSON, no extra text."
         )
         user = f"Stadium data:\n{json.dumps(observation['data'], indent=2)}"
-        # LLM call is NOT wrapped — must reach the proxy
-        raw = llm_call(system, user)
-        # Only JSON parsing is wrapped
-        try:
-            return parse_json_response(raw)
-        except Exception:
-            stadium = observation["data"]["stadium"]
-            crowd = int(stadium["capacity"] * stadium["expected_crowd_percentage"])
-            ratio = {"league": 2.5, "playoff": 3.5, "final": 5.0}.get(stadium["match_type"], 3.0)
-            total_sec = int((crowd / 1000) * ratio)
-            return {
-                "security_per_gate": max(2, total_sec // stadium["gates_count"]),
-                "total_security": total_sec,
-                "medical_personnel": int((crowd / 1000) * 1.5),
-                "ticketing_staff": int((crowd / 1000) * 0.8),
-                "reasoning": f"Heuristic fallback for {crowd} crowd",
-            }
+        raw = self._llm_solve(system, user)
+        if raw:
+            try:
+                return parse_json_response(raw)
+            except Exception:
+                pass
+        stadium = observation["data"]["stadium"]
+        crowd = int(stadium["capacity"] * stadium["expected_crowd_percentage"])
+        ratio = {"league": 2.5, "playoff": 3.5, "final": 5.0}.get(stadium["match_type"], 3.0)
+        total_sec = int((crowd / 1000) * ratio)
+        return {
+            "security_per_gate": max(2, total_sec // stadium["gates_count"]),
+            "total_security": total_sec,
+            "medical_personnel": int((crowd / 1000) * 1.5),
+            "ticketing_staff": int((crowd / 1000) * 0.8),
+            "reasoning": f"Heuristic fallback for {crowd} crowd",
+        }
 
     def solve_task2(self, observation: dict) -> dict:
         """Task 2: Playing XI Selection — decided by LLM."""
@@ -118,19 +125,21 @@ class IPLOpsAgent:
             "Return only valid JSON, no extra text."
         )
         user = f"Selection data:\n{json.dumps(observation['data'], indent=2)}"
-        raw = llm_call(system, user)
-        try:
-            return parse_json_response(raw)
-        except Exception:
-            squad = observation["data"]["squad"]
-            squad_sorted = sorted(squad, key=lambda p: p.get("recent_form", 0), reverse=True)
-            xi = [p["name"] for p in squad_sorted[:11]]
-            return {
-                "playing_xi": xi,
-                "batting_order": xi,
-                "bowling_combination": {"pacers": [], "spinners": []},
-                "reasoning": "Fallback: top 11 by recent form",
-            }
+        raw = self._llm_solve(system, user)
+        if raw:
+            try:
+                return parse_json_response(raw)
+            except Exception:
+                pass
+        squad = observation["data"]["squad"]
+        squad_sorted = sorted(squad, key=lambda p: p.get("recent_form", 0), reverse=True)
+        xi = [p["name"] for p in squad_sorted[:11]]
+        return {
+            "playing_xi": xi,
+            "batting_order": xi,
+            "bowling_combination": {"pacers": [], "spinners": []},
+            "reasoning": "Fallback: top 11 by recent form",
+        }
 
     def solve_task3(self, observation: dict) -> dict:
         """Task 3: Crisis Management — decided by LLM."""
@@ -144,22 +153,24 @@ class IPLOpsAgent:
             "Return only valid JSON, no extra text."
         )
         user = f"Crisis data:\n{json.dumps(observation['data'], indent=2)}"
-        raw = llm_call(system, user)
-        try:
-            return parse_json_response(raw)
-        except Exception:
-            return {
-                "priority_order": [
-                    {"rank": 1, "crisis": "crowd_safety", "reason": "Life-threatening"},
-                    {"rank": 2, "crisis": "injury", "reason": "Player health"},
-                    {"rank": 3, "crisis": "weather", "reason": "Match continuation"},
-                    {"rank": 4, "crisis": "regulatory", "reason": "Compliance"},
-                    {"rank": 5, "crisis": "tech_failure", "reason": "Minimal impact"},
-                ],
-                "decisions": {},
-                "timeline": {},
-                "risk_assessment": {},
-            }
+        raw = self._llm_solve(system, user)
+        if raw:
+            try:
+                return parse_json_response(raw)
+            except Exception:
+                pass
+        return {
+            "priority_order": [
+                {"rank": 1, "crisis": "crowd_safety", "reason": "Life-threatening"},
+                {"rank": 2, "crisis": "injury", "reason": "Player health"},
+                {"rank": 3, "crisis": "weather", "reason": "Match continuation"},
+                {"rank": 4, "crisis": "regulatory", "reason": "Compliance"},
+                {"rank": 5, "crisis": "tech_failure", "reason": "Minimal impact"},
+            ],
+            "decisions": {},
+            "timeline": {},
+            "risk_assessment": {},
+        }
 
     def run(self, task_id: int) -> float:
         task_names = {1: "staff_allocation", 2: "playing_xi_selection", 3: "crisis_management"}
