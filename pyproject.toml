@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iplops-env"
+version = "1.0.0"
+description = "Indian Premier League Operations Environment - Real-world IPL match operations simulation for AI agent evaluation"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi==0.109.0",
+    "uvicorn==0.27.0",
+    "pydantic==2.5.3",
+    "requests==2.31.0",
+    "python-dotenv==1.0.0",
+    "numpy==1.26.3",
+    "openai==1.12.0"
+]
