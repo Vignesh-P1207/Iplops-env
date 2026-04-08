@@ -27,6 +27,8 @@ def get_llm_client() -> OpenAI:
 def llm_call(system: str, user: str) -> str:
     """Make a call through the OpenEnv LLM proxy and return the text response."""
     client = get_llm_client()
+    # Debug: confirm we're about to call the proxy
+    print(f"[DEBUG] Calling LLM proxy at {os.environ.get('API_BASE_URL', 'MISSING')}", file=sys.stderr, flush=True)
     response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=[
@@ -35,6 +37,7 @@ def llm_call(system: str, user: str) -> str:
         ],
         temperature=0.2,
     )
+    print(f"[DEBUG] LLM call completed", file=sys.stderr, flush=True)
     return response.choices[0].message.content
 
 
@@ -162,6 +165,15 @@ class IPLOpsAgent:
 
         log_start(task=task_name, env=BENCHMARK, model=MODEL_NAME)
 
+        # Validate LLM proxy access early (outside try/except so failures are visible)
+        try:
+            _ = get_llm_client()
+        except KeyError as e:
+            error_msg = f"Missing required env var: {e}"
+            log_step(step=0, action={}, reward=0.0, done=True, error=error_msg)
+            log_end(success=False, steps=0, score=0.0, rewards=[])
+            raise RuntimeError(error_msg) from e
+
         try:
             response = requests.post(f"{self.base_url}/reset", json={"task_id": task_id})
             observation = response.json()["observation"]
@@ -187,7 +199,8 @@ class IPLOpsAgent:
             score = reward
             success = score >= SUCCESS_SCORE_THRESHOLD
 
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
+            # Only catch network errors to environment, not LLM errors
             log_step(step=steps_taken, action={}, reward=0.0, done=True, error=str(e))
 
         finally:
