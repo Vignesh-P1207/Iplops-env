@@ -7,13 +7,18 @@ name = "iplops-env"
 version = "1.0.0"
 description = "Indian Premier League Operations Environment - Real-world IPL match operations simulation for AI agent evaluation"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "fastapi==0.109.0",
-    "uvicorn==0.27.0",
-    "pydantic==2.5.3",
-    "requests==2.31.0",
-    "python-dotenv==1.0.0",
-    "numpy==1.26.3",
-    "openai==1.12.0"
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests",
+    "python-dotenv",
+    "numpy",
+    "openai>=2.7.2",
+    "openenv-core>=0.2.0"
 ]
+
+[project.scripts]
+server = "server.app:run"
+
