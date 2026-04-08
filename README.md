@@ -273,7 +273,7 @@ Squad data for all 10 IPL teams is bundled with realistic 2026 stats — batting
 
 ```bash
 # Verify it's running
-curl https://YOUR_USERNAME-iplops-env.hf.space/health
+curl https://vigneshp12-iplops-env.hf.space/health
 ```
 
 ---
