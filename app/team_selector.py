@@ -25,7 +25,7 @@ class IntelligentTeamSelector:
             try:
                 from openai import OpenAI
                 api_base = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-                api_key = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+                api_key = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
                 self.client = OpenAI(base_url=api_base, api_key=api_key)
                 print("[AI] OpenAI client initialized - will use GPT for team selection")
             except Exception as e:

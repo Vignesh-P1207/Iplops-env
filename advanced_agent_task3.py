@@ -19,7 +19,7 @@ except ImportError:
 from app.prompts import TASK3_SYSTEM_PROMPT, format_task3_prompt, CRISIS_PRIORITIES
 
 BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
-API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+API_KEY = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4")
 
 
